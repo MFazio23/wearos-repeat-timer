@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Fazio Repeat Timer</string>
+    <string name="round_template">Round %1$d</string>
+</resources>
