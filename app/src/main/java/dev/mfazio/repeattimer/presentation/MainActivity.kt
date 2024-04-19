@@ -156,6 +156,12 @@ fun WearApp() {
                         onButtonClick = {
                             vibrator.singleVibrate(length = 100L)
                             timerRunning = !timerRunning
+                        },
+                        onLongClick = {
+                            haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                            timeRemaining = defaultTimerLength
+                            currentRound = 1
+                            timerRunning = true
                         }
                     )
                 }

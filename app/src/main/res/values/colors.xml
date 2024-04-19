@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <color name="timer_blue">#2FA8CC</color>
+    <color name="timer_blue_translucent">#802FA8CC</color>
+    <color name="timer_red">#FF5364</color>
+    <color name="timer_green">#53F953</color>
+</resources>

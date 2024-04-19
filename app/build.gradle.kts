@@ -70,13 +70,13 @@ dependencies {
     implementation("androidx.wear.tiles:tiles:1.2.0")
     implementation("androidx.wear.watchface:watchface-complications-data-source-ktx:1.1.1")
 
-    implementation("com.google.android.horologist:horologist-compose-layout:0.1.5")
-    implementation("com.google.android.horologist:horologist-compose-tools:0.1.5")
-    implementation("com.google.android.horologist:horologist-tiles:0.1.5")
+    implementation("com.google.android.horologist:horologist-compose-layout:0.5.8")
+    implementation("com.google.android.horologist:horologist-compose-tools:0.5.8")
+    implementation("com.google.android.horologist:horologist-tiles:0.5.8")
 
     implementation("com.google.android.gms:play-services-wearable:18.1.0")
 
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-guava:1.6.4")
+    implementation("com.jakewharton.timber:timber:5.0.1")
 
     androidTestImplementation(platform("androidx.compose:compose-bom:2022.10.00"))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
