@@ -102,8 +102,8 @@ fun WearApp() {
         Timer(
             timeRemaining = timeRemaining,
             currentRound = currentRound,
-            vibrator = vibrator,
             timerRunning = timerRunning,
+            vibrator = vibrator,
             onTimerRunningChange = { timerRunning = it },
             onTimeRemainingChange = { timeRemaining = it },
             onCurrentRoundChange = { currentRound = it }
