@@ -35,6 +35,7 @@ import dev.mfazio.repeattimer.presentation.theme.TimerRed
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PlayPauseButton(
+    modifier: Modifier = Modifier,
     timerRunning: Boolean = false,
     onButtonClick: () -> Unit = {},
     onLongClick: () -> Unit = {},
@@ -59,7 +60,7 @@ fun PlayPauseButton(
 
     val interactionSource = remember { MutableInteractionSource() }
 
-    Box(modifier = Modifier.padding(4.dp)) {
+    Box(modifier = modifier.padding(4.dp)) {
         Button(
             modifier = Modifier
                 .fillMaxHeight()

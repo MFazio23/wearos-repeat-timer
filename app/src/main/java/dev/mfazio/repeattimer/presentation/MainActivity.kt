@@ -11,8 +11,10 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -29,12 +31,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
 import com.google.android.horologist.compose.layout.fillMaxRectangle
 import dev.mfazio.repeattimer.R
 import dev.mfazio.repeattimer.presentation.components.PlayPauseButton
+import dev.mfazio.repeattimer.presentation.components.Timer
 import dev.mfazio.repeattimer.presentation.extras.doubleVibrate
 import dev.mfazio.repeattimer.presentation.extras.getVibrator
 import dev.mfazio.repeattimer.presentation.extras.singleVibrate
@@ -59,7 +63,6 @@ class MainActivity : ComponentActivity() {
 const val defaultTimerLength = 30
 const val defaultRestTime = 5
 
-@OptIn(ExperimentalFoundationApi::class) //For combinedClickable
 @Composable
 fun WearApp() {
     var timerRunning by remember { mutableStateOf(false) }
@@ -94,106 +97,16 @@ fun WearApp() {
         }
     }
 
-    val timeRemainingString = when {
-        timeRemaining in 0..9 -> {
-            "00:0$timeRemaining"
-        }
-
-        timeRemaining in 10..59 -> {
-            "00:$timeRemaining"
-        }
-
-        timeRemaining < 0 -> {
-            "-0:0${-timeRemaining}"
-        }
-
-        else -> "--:--"
-    }
-
-    val haptics = LocalHapticFeedback.current
 
     FazioRepeatTimerTheme {
-        Box(modifier = Modifier.fillMaxRectangle()) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colors.background),
-                verticalArrangement = Arrangement.SpaceBetween,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = timeRemainingString,
-                    color = if (timeRemaining > 0) TimerBlue else TimerBlueTranslucent,
-                    fontSize = 24.sp,
-                    fontFamily = JetBrainsMonoFontFamily,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .combinedClickable(
-                            indication = null,
-                            interactionSource = remember { MutableInteractionSource() },
-                            onClick = {},
-                            onDoubleClick = {
-                                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                                timeRemaining = if (timeRemaining < 0) {
-                                    0
-                                }
-                                else if (timeRemaining <= 10) {
-                                    -defaultRestTime
-                                } else {
-                                    timeRemaining - 10
-                                }
-                            },
-                            onLongClick = {
-                                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                                timeRemaining = defaultTimerLength
-                            }
-                        )
-                )
-                Box(Modifier.weight(1F)) {
-                    PlayPauseButton(
-                        timerRunning = timerRunning,
-                        onButtonClick = {
-                            vibrator.singleVibrate(length = 100L)
-                            timerRunning = !timerRunning
-                        },
-                        onLongClick = {
-                            haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                            timeRemaining = defaultTimerLength
-                            currentRound = 1
-                            timerRunning = true
-                        }
-                    )
-                }
-                Text(
-                    text = stringResource(id = R.string.round_template, currentRound),
-                    color = TimerBlue,
-                    fontSize = 12.sp,
-                    fontFamily = JetBrainsMonoFontFamily,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .combinedClickable(
-                            indication = null,
-                            interactionSource = remember { MutableInteractionSource() },
-                            onClick = {},
-                            onDoubleClick = {
-                                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                                currentRound++
-                            },
-                            onLongClick = {
-                                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                                currentRound = 1
-                            }
-                        )
-                )
-            }
-        }
+        Timer(
+            timeRemaining = timeRemaining,
+            currentRound = currentRound,
+            vibrator = vibrator,
+            timerRunning = timerRunning,
+            onTimerRunningChange = { timerRunning = it },
+            onTimeRemainingChange = { timeRemaining = it },
+            onCurrentRoundChange = { currentRound = it }
+        )
     }
-}
-
-@Preview(device = Devices.WEAR_OS_LARGE_ROUND, showSystemUi = true)
-@Composable
-fun DefaultPreview() {
-    WearApp()
 }

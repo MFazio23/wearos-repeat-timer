@@ -77,6 +77,7 @@ dependencies {
     implementation("com.google.android.gms:play-services-wearable:18.1.0")
 
     implementation("com.jakewharton.timber:timber:5.0.1")
+    implementation("androidx.wear:wear-tooling-preview:1.0.0")
 
     androidTestImplementation(platform("androidx.compose:compose-bom:2022.10.00"))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
