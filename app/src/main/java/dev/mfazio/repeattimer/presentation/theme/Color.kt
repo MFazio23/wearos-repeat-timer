@@ -14,6 +14,8 @@ val TimerBlueTranslucent = Color(0xFF2FA8CC).copy(alpha = 0.5F)
 val TimerRed = Color(0xFFFF5364)
 val TimerGreen = Color(0xFF53F953)
 
+val extraInfoGray = Color(0x88A0A0A0)
+
 internal val wearColorPalette: Colors = Colors(
     primary = Purple200,
     primaryVariant = Purple700,
