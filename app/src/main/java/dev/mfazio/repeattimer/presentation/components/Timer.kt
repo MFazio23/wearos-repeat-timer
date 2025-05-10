@@ -25,7 +25,6 @@ import androidx.wear.compose.material.Text
 import androidx.wear.tooling.preview.devices.WearDevices
 import dev.mfazio.repeattimer.R
 import dev.mfazio.repeattimer.presentation.WearApp
-import dev.mfazio.repeattimer.presentation.defaultRestTime
 import dev.mfazio.repeattimer.presentation.extras.singleVibrate
 import dev.mfazio.repeattimer.presentation.theme.JetBrainsMonoFontFamily
 import dev.mfazio.repeattimer.presentation.theme.TimerBlue
@@ -65,6 +64,7 @@ private fun timeRemainingString(timeRemaining: Int) = when {
 @Composable
 fun Timer(
     timerLength: Int,
+    restLength: Int,
     timeRemaining: Int,
     currentRound: Int,
     timerRunning: Boolean,
@@ -105,7 +105,7 @@ fun Timer(
                             val newTimeRemaining = if (timeRemaining < 0) {
                                 0
                             } else if (timeRemaining <= 10) {
-                                -defaultRestTime
+                                -restLength
                             } else {
                                 timeRemaining - 10
                             }

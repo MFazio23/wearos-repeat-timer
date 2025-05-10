@@ -95,12 +95,13 @@ class MainActivity : ComponentActivity() {
 }
 
 const val defaultTimerLength = 30
-const val defaultRestTime = 5
+const val defaultRestLength = 5
 
 @Composable
 fun WearApp(stepsText: String? = null) {
     var timerRunning by remember { mutableStateOf(false) }
     var timerLength by remember { mutableIntStateOf(defaultTimerLength) }
+    var restLength by remember { mutableIntStateOf(defaultRestLength) }
     var timeRemaining by remember { mutableIntStateOf(timerLength) }
 
     var currentRound by remember { mutableIntStateOf(1) }
@@ -114,7 +115,7 @@ fun WearApp(stepsText: String? = null) {
             when {
                 timeRemaining == 1 -> {
                     vibrator.doubleVibrate()
-                    timeRemaining = -defaultRestTime
+                    timeRemaining = -restLength
                 }
 
                 timeRemaining < -1 -> {
@@ -159,6 +160,7 @@ fun WearApp(stepsText: String? = null) {
                 if (page == 0) {
                     Timer(
                         timerLength = timerLength,
+                        restLength = restLength,
                         timeRemaining = timeRemaining,
                         currentRound = currentRound,
                         timerRunning = timerRunning,
@@ -170,7 +172,12 @@ fun WearApp(stepsText: String? = null) {
                 } else {
                     TimerSettings(
                         timerLength = timerLength,
-                        onTimerLengthChange = { timerLength = it }
+                        onTimerLengthChange = {
+                            timerLength = it
+                            if (!timerRunning) {
+                                timeRemaining = it
+                            }
+                        },
                     )
                 }
             }
