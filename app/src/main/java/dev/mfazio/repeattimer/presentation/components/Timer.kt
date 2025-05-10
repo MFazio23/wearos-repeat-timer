@@ -5,18 +5,13 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
@@ -25,22 +20,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.wear.compose.foundation.CurvedTextStyle
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
-import androidx.wear.compose.material.TimeText
-import androidx.wear.compose.material.TimeTextDefaults
-import androidx.wear.compose.material.curvedText
 import androidx.wear.tooling.preview.devices.WearDevices
 import dev.mfazio.repeattimer.R
 import dev.mfazio.repeattimer.presentation.WearApp
 import dev.mfazio.repeattimer.presentation.defaultRestTime
-import dev.mfazio.repeattimer.presentation.defaultTimerLength
 import dev.mfazio.repeattimer.presentation.extras.singleVibrate
 import dev.mfazio.repeattimer.presentation.theme.JetBrainsMonoFontFamily
 import dev.mfazio.repeattimer.presentation.theme.TimerBlue
 import dev.mfazio.repeattimer.presentation.theme.TimerBlueTranslucent
-import dev.mfazio.repeattimer.presentation.theme.extraInfoGray
 
 private fun timeRemainingString(timeRemaining: Int) = when {
     timeRemaining in 0..9 -> {
@@ -51,27 +40,40 @@ private fun timeRemainingString(timeRemaining: Int) = when {
         "00:$timeRemaining"
     }
 
-    timeRemaining < 0 -> {
-        "-0:0${-timeRemaining}"
+    timeRemaining >= 60 -> {
+        val minutes = timeRemaining / 60
+        val minutesText = if (minutes < 10) {
+            "0$minutes"
+        } else {
+            "$minutes"
+        }
+        val seconds = timeRemaining % 60
+        val secondsText = if (seconds < 10) {
+            "0$seconds"
+        } else {
+            "$seconds"
+        }
+        "$minutesText:$secondsText"
     }
 
-    else -> "--:--"
+    else -> {
+        "-0:0${-timeRemaining}"
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class) //For combinedClickable
 @Composable
 fun Timer(
+    timerLength: Int,
     timeRemaining: Int,
     currentRound: Int,
     timerRunning: Boolean,
-    currentStepCountText: String?,
     vibrator: Vibrator,
     onTimerRunningChange: (Boolean) -> Unit,
     onTimeRemainingChange: (Int) -> Unit,
     onCurrentRoundChange: (Int) -> Unit
 ) {
     val haptics = LocalHapticFeedback.current
-    val leadingTextStyle = TimeTextDefaults.timeTextStyle(color = extraInfoGray)
 
     Box(modifier = Modifier.fillMaxSize()) {
         ConstraintLayout(
@@ -79,24 +81,7 @@ fun Timer(
                 .fillMaxSize()
                 .background(MaterialTheme.colors.background),
         ) {
-            val (timeTextRef, timeRemainingTextRef, buttonRef, roundTextRef) = createRefs()
-            TimeText(
-                timeTextStyle = leadingTextStyle,
-                modifier = Modifier
-                    .constrainAs(timeTextRef) {
-                        top.linkTo(parent.top)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                    },
-                endCurvedContent = {
-                    currentStepCountText?.let {
-                        curvedText(
-                            text = it,
-                            style = CurvedTextStyle(leadingTextStyle)
-                        )
-                    }
-                },
-            )
+            val (timeRemainingTextRef, buttonRef, roundTextRef) = createRefs()
             Text(
                 text = timeRemainingString(timeRemaining),
                 color = if (timeRemaining > 0) TimerBlue else TimerBlueTranslucent,
@@ -128,7 +113,7 @@ fun Timer(
                         },
                         onLongClick = {
                             haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                            onTimeRemainingChange(defaultTimerLength)
+                            onTimeRemainingChange(timerLength)
                         }
                     )
             )
@@ -149,7 +134,7 @@ fun Timer(
                 onLongClick = {
                     haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                     onTimerRunningChange(true)
-                    onTimeRemainingChange(defaultTimerLength)
+                    onTimeRemainingChange(timerLength)
                     onCurrentRoundChange(1)
                 }
             )

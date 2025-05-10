@@ -49,6 +49,7 @@ android {
 }
 
 dependencies {
+    val horologistVersion = "0.6.20"
 
     implementation(platform("androidx.compose:compose-bom:2024.09.01"))
 
@@ -71,9 +72,11 @@ dependencies {
     implementation("androidx.wear.tiles:tiles:1.4.0")
     implementation("androidx.wear.watchface:watchface-complications-data-source-ktx:1.2.1")
 
-    implementation("com.google.android.horologist:horologist-compose-layout:0.5.8")
-    implementation("com.google.android.horologist:horologist-compose-tools:0.5.8")
-    implementation("com.google.android.horologist:horologist-tiles:0.5.8")
+    implementation("com.google.android.horologist:horologist-composables:$horologistVersion")
+    implementation("com.google.android.horologist:horologist-compose-layout:$horologistVersion")
+    implementation("com.google.android.horologist:horologist-compose-material:$horologistVersion")
+    implementation("com.google.android.horologist:horologist-compose-tools:$horologistVersion")
+    implementation("com.google.android.horologist:horologist-tiles:$horologistVersion")
 
     implementation("com.google.android.gms:play-services-wearable:18.2.0")
 

@@ -4,6 +4,9 @@ import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -11,21 +14,28 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.health.services.client.HealthServices
 import androidx.health.services.client.PassiveListenerCallback
-import androidx.health.services.client.clearPassiveListenerCallback
 import androidx.health.services.client.data.DataPointContainer
 import androidx.health.services.client.data.DataType
 import androidx.health.services.client.data.PassiveListenerConfig
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.wear.compose.foundation.CurvedTextStyle
+import androidx.wear.compose.material.TimeText
+import androidx.wear.compose.material.TimeTextDefaults
+import androidx.wear.compose.material.curvedText
+import com.google.android.horologist.compose.layout.AppScaffold
 import dev.mfazio.repeattimer.presentation.components.Timer
+import dev.mfazio.repeattimer.presentation.components.TimerSettings
 import dev.mfazio.repeattimer.presentation.extras.doubleVibrate
 import dev.mfazio.repeattimer.presentation.extras.getVibrator
 import dev.mfazio.repeattimer.presentation.extras.singleVibrate
 import dev.mfazio.repeattimer.presentation.theme.FazioRepeatTimerTheme
+import dev.mfazio.repeattimer.presentation.theme.extraInfoGray
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.guava.await
 import kotlinx.coroutines.launch
@@ -65,7 +75,10 @@ class MainActivity : ComponentActivity() {
                         }
                     }
 
-                    passiveMonitoringClient.setPassiveListenerCallback(config, passiveListenerCallback)
+                    passiveMonitoringClient.setPassiveListenerCallback(
+                        config,
+                        passiveListenerCallback
+                    )
                 }
             }
         }
@@ -87,10 +100,13 @@ const val defaultRestTime = 5
 @Composable
 fun WearApp(stepsText: String? = null) {
     var timerRunning by remember { mutableStateOf(false) }
-    var timeRemaining by remember { mutableIntStateOf(defaultTimerLength) }
+    var timerLength by remember { mutableIntStateOf(defaultTimerLength) }
+    var timeRemaining by remember { mutableIntStateOf(timerLength) }
+
     var currentRound by remember { mutableIntStateOf(1) }
 
     val vibrator = getVibrator(LocalContext.current)
+    val leadingTextStyle = TimeTextDefaults.timeTextStyle(color = extraInfoGray)
 
     LaunchedEffect(timerRunning) {
         while (timerRunning) {
@@ -111,24 +127,54 @@ fun WearApp(stepsText: String? = null) {
 
                 else -> {
                     vibrator.singleVibrate()
-                    timeRemaining = defaultTimerLength
+                    timeRemaining = timerLength
                     currentRound++
                 }
             }
         }
     }
 
+    val pagerState = rememberPagerState(pageCount = { 2 })
 
     FazioRepeatTimerTheme {
-        Timer(
-            timeRemaining = timeRemaining,
-            currentRound = currentRound,
-            timerRunning = timerRunning,
-            currentStepCountText = stepsText,
-            vibrator = vibrator,
-            onTimerRunningChange = { timerRunning = it },
-            onTimeRemainingChange = { timeRemaining = it },
-            onCurrentRoundChange = { currentRound = it }
-        )
+        AppScaffold(
+            timeText = {
+                TimeText(
+                    timeTextStyle = leadingTextStyle,
+                    endCurvedContent = {
+                        stepsText?.let {
+                            curvedText(
+                                text = it,
+                                style = CurvedTextStyle(leadingTextStyle)
+                            )
+                        }
+                    },
+                )
+            }
+        ) {
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier.fillMaxSize()
+            ) { page ->
+                if (page == 0) {
+                    Timer(
+                        timerLength = timerLength,
+                        timeRemaining = timeRemaining,
+                        currentRound = currentRound,
+                        timerRunning = timerRunning,
+                        vibrator = vibrator,
+                        onTimerRunningChange = { timerRunning = it },
+                        onTimeRemainingChange = { timeRemaining = it },
+                        onCurrentRoundChange = { currentRound = it }
+                    )
+                } else {
+                    TimerSettings(
+                        timerLength = timerLength,
+                        onTimerLengthChange = { timerLength = it }
+                    )
+                }
+            }
+        }
+
     }
 }
